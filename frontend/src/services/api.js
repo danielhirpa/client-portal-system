@@ -36,4 +36,6 @@ export const fetchTasks = (params) => API.get('tasks/', { params });
 export const createTask = (taskData) => API.post('tasks/', taskData);
 export const updateTaskStatus = (taskId, status) => API.patch(`tasks/${taskId}/`, { status });
 
+// Export apiClient so App.jsx import works cleanly
+export const apiClient = API;
 export default API;
