@@ -1,14 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import TaskBoard from './components/TaskBoard';
 import FileHub from './components/FileHub';
 import OnboardingChecklist from './components/OnboardingChecklist';
-import { LayoutDashboard, CheckSquare, FileText, CheckCircle2, Database, ArrowUpRight } from 'lucide-react';
+import { apiClient } from './services/api';
+import { LayoutDashboard, CheckSquare, FileText, CheckCircle2, Database, ArrowUpRight, AlertCircle } from 'lucide-react';
 
 export default function App() {
   const [currentTenant, setTenant] = useState('Acme Corp');
   const [currentRole, setRole] = useState('AGENCY_ADMIN');
   const [activeTab, setActiveTab] = useState('overview');
+  const [backendStatus, setBackendStatus] = useState('Connecting...');
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
+
+  // Test connection to your Render Django backend on mount
+  useEffect(() => {
+    apiClient.get('/')
+      .then(response => {
+        setBackendStatus('Django + PostgreSQL Backend Connected');
+        setIsBackendConnected(true);
+      })
+      .catch(error => {
+        console.error('Backend connection error:', error);
+        setBackendStatus('Backend connection failed');
+        setIsBackendConnected(false);
+      });
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#121417] text-slate-100 flex flex-col font-sans bg-ambient-charcoal">
@@ -64,9 +81,9 @@ export default function App() {
                 <h2 className="text-2xl font-bold text-slate-100 mt-1">Tenant: <span className="text-amber-400">{currentTenant}</span></h2>
                 <p className="text-xs text-slate-400 mt-1">Active Security Context: <span className="text-slate-200 font-semibold">{currentRole}</span></p>
               </div>
-              <div className="flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-xl text-amber-400 text-xs font-semibold shadow-inner">
-                <Database className="w-4 h-4" />
-                <span>Django + PostgreSQL Backend Connected</span>
+              <div className={`flex items-center space-x-2 border px-4 py-2 rounded-xl text-xs font-semibold shadow-inner ${isBackendConnected ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                {isBackendConnected ? <Database className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                <span>{backendStatus}</span>
               </div>
             </div>
 
